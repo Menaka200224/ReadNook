@@ -1,0 +1,18 @@
+# ── Node ──
+node_modules/
+npm-debug.log*
+
+# ── Database (keep the file local, not on GitHub) ──
+server/readnook.db
+
+# ── Environment variables (passwords, API keys) ──
+.env
+.env.local
+
+# ── OS junk ──
+.DS_Store
+Thumbs.db
+
+# ── Editor folders ──
+.vscode/
+.idea/
