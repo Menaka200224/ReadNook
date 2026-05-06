@@ -1,33 +1,21 @@
-// ── Readnook app.js – Phase 2 ──
+// app.js — Readnook frontend (Phase 3)
 
-// Default books (used only if nothing is saved yet)
-const defaultBooks = [
-  { id: 1, title: "The Pragmatic Programmer", author: "David Thomas & Andrew Hunt", status: "reading" },
-  { id: 2, title: "Atomic Habits",            author: "James Clear",                 status: "done"    },
-  { id: 3, title: "Deep Work",                author: "Cal Newport",                 status: "want"    },
-  { id: 4, title: "The Alchemist",            author: "Paulo Coelho",                status: "want"    },
-  { id: 5, title: "Sapiens",                  author: "Yuval Noah Harari",           status: "reading" },
-];
+const API = "http://localhost:3000/api";
 
-// ── Load from localStorage (or use defaults) ──
-function loadBooks() {
-  const saved = localStorage.getItem("readnook-books");
-  return saved ? JSON.parse(saved) : defaultBooks;
-}
-
-// ── Save to localStorage ──
-function saveBooks(books) {
-  localStorage.setItem("readnook-books", JSON.stringify(books));
-}
-
-// ── Status label map ──
 const statusLabel = {
   reading: "Reading",
   done:    "Done",
   want:    "Want to read",
 };
 
-// ── Render cards to the DOM ──
+// ── Fetch all books from the backend ──
+async function loadBooks() {
+  const res   = await fetch(`${API}/books`);
+  const books = await res.json();
+  return books;
+}
+
+// ── Render cards ──
 function renderBooks(books) {
   const grid = document.getElementById("book-grid");
 
@@ -52,33 +40,32 @@ function renderBooks(books) {
     </div>
   `).join("");
 
-  // Attach change listeners to all dropdowns
   document.querySelectorAll(".status-select").forEach(select => {
-    select.addEventListener("change", (e) => {
-      updateStatus(parseInt(e.target.dataset.id), e.target.value);
+    select.addEventListener("change", async (e) => {
+      await updateStatus(parseInt(e.target.dataset.id), e.target.value);
     });
   });
 }
 
-// ── Update a book's status ──
-function updateStatus(id, newStatus) {
-  const books = loadBooks();
-  const book = books.find(b => b.id === id);
-  if (book) {
-    book.status = newStatus;
-    saveBooks(books);
-    applyFilters(); // re-render with current filters
-  }
+// ── Update status via API ──
+async function updateStatus(id, newStatus) {
+  await fetch(`${API}/books/${id}`, {
+    method:  "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body:    JSON.stringify({ status: newStatus }),
+  });
+  applyFilters();
 }
 
-// ── Filter + search logic ──
+// ── Filter + search ──
+let allBooks    = [];
 let activeFilter = "all";
 
-function applyFilters() {
-  const books     = loadBooks();
-  const query     = document.getElementById("search").value.toLowerCase();
+async function applyFilters() {
+  allBooks = await loadBooks();
+  const query = document.getElementById("search").value.toLowerCase();
 
-  const filtered = books.filter(book => {
+  const filtered = allBooks.filter(book => {
     const matchesSearch = book.title.toLowerCase().includes(query) ||
                           book.author.toLowerCase().includes(query);
     const matchesFilter = activeFilter === "all" || book.status === activeFilter;
@@ -88,10 +75,28 @@ function applyFilters() {
   renderBooks(filtered);
 }
 
-// ── Search input listener ──
+// ── Add book form ──
+async function addBook(e) {
+  e.preventDefault();
+  const title  = document.getElementById("new-title").value.trim();
+  const author = document.getElementById("new-author").value.trim();
+  if (!title || !author) return;
+
+  await fetch(`${API}/books`, {
+    method:  "POST",
+    headers: { "Content-Type": "application/json" },
+    body:    JSON.stringify({ title, author, status: "want" }),
+  });
+
+  document.getElementById("new-title").value  = "";
+  document.getElementById("new-author").value = "";
+  document.getElementById("add-form").classList.add("hidden");
+  applyFilters();
+}
+
+// ── Event listeners ──
 document.getElementById("search").addEventListener("input", applyFilters);
 
-// ── Filter button listeners ──
 document.querySelectorAll(".filter-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
@@ -101,5 +106,11 @@ document.querySelectorAll(".filter-btn").forEach(btn => {
   });
 });
 
-// ── Initial render ──
+document.getElementById("add-book-btn").addEventListener("click", () => {
+  document.getElementById("add-form").classList.toggle("hidden");
+});
+
+document.getElementById("book-form").addEventListener("submit", addBook);
+
+// ── Initial load ──
 applyFilters();

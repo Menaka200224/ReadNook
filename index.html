@@ -36,7 +36,20 @@
       <button class="filter-btn" data-filter="want">Want to read</button>
     </div>
 
-    <p class="section-label">Your reading list</p>
+    
+
+    <!-- Add book form -->
+    <div class="top-bar">
+  <p class="section-label">Your reading list</p>
+  <button id="add-book-btn" class="add-btn">+ Add book</button>
+</div>
+
+<div id="add-form" class="add-form hidden">
+  <input id="new-title"  type="text" placeholder="Book title"   class="search-input" />
+  <input id="new-author" type="text" placeholder="Author name"  class="search-input" />
+  <button type="submit" form="book-form" class="submit-btn">Add to list</button>
+  <form id="book-form"></form>
+</div>
 
     <!-- Cards render here -->
     <div class="book-grid" id="book-grid"></div>
