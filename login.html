@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Readnook — Login</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header>
+    <a href="index.html" class="logo">read<span>nook</span></a>
+  </header>
+
+  <main>
+    <div class="auth-box">
+      <h2>Welcome back</h2>
+      <p class="auth-sub">Log in to your Readnook account</p>
+
+      <div id="error-msg" class="error-msg hidden"></div>
+
+      <div class="auth-form">
+        <input id="email"    type="email"    placeholder="Email address" class="search-input" />
+        <input id="password" type="password" placeholder="Password"      class="search-input" />
+        <button id="login-btn" class="submit-btn" style="width:100%">Log in</button>
+      </div>
+
+      <p class="auth-switch">
+        Don't have an account? <a href="register.html">Sign up</a>
+      </p>
+    </div>
+  </main>
+
+  <script>
+    document.getElementById("login-btn").addEventListener("click", async () => {
+      const email    = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const errEl    = document.getElementById("error-msg");
+
+      const res  = await fetch("/api/auth/login", {
+        method:      "POST",
+        headers:     { "Content-Type": "application/json" },
+        credentials: "include",
+        body:        JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        errEl.textContent = data.error;
+        errEl.classList.remove("hidden");
+        return;
+      }
+
+      window.location.href = "index.html";
+    });
+  </script>
+
+</body>
+</html>

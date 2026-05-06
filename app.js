@@ -1,5 +1,28 @@
-// app.js — Readnook frontend (Phase 3)
+// ── Check login on page load ──
+async function checkAuth() {
+  const res  = await fetch("/api/auth/me", { credentials: "include" });
+  const data = await res.json();
 
+  if (!data.loggedIn) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  // Show user's name in header
+  const userEl = document.getElementById("user-name");
+  if (userEl) userEl.textContent = data.name;
+}
+
+// ── Logout ──
+async function logout() {
+  await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+  window.location.href = "login.html";
+}
+
+document.getElementById("logout-btn")?.addEventListener("click", logout);
+
+// Run auth check first
+checkAuth().then(() => applyFilters());
 const API = "http://localhost:3000/api";
 
 const statusLabel = {
@@ -10,7 +33,7 @@ const statusLabel = {
 
 // ── Fetch all books from the backend ──
 async function loadBooks() {
-  const res   = await fetch(`${API}/books`);
+  const res   = await fetch(`${API}/books`, { credentials: "include" });
   const books = await res.json();
   return books;
 }
@@ -52,6 +75,7 @@ async function updateStatus(id, newStatus) {
   await fetch(`${API}/books/${id}`, {
     method:  "PATCH",
     headers: { "Content-Type": "application/json" },
+    credentials: "include",
     body:    JSON.stringify({ status: newStatus }),
   });
   applyFilters();
@@ -83,6 +107,7 @@ async function addBook(e) {
   if (!title || !author) return;
 
   await fetch(`${API}/books`, {
+    credentials: "include",
     method:  "POST",
     headers: { "Content-Type": "application/json" },
     body:    JSON.stringify({ title, author, status: "want" }),
@@ -112,5 +137,3 @@ document.getElementById("add-book-btn").addEventListener("click", () => {
 
 document.getElementById("book-form").addEventListener("submit", addBook);
 
-// ── Initial load ──
-applyFilters();

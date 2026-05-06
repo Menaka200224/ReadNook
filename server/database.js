@@ -13,6 +13,7 @@ db.exec(`
     author    TEXT    NOT NULL,
     status    TEXT    NOT NULL DEFAULT 'want',
     notes     TEXT    DEFAULT '',
+    user_id    INTEGER,
     created_at TEXT   DEFAULT (datetime('now'))
   );
 
@@ -21,6 +22,15 @@ db.exec(`
     name       TEXT NOT NULL,
     email      TEXT NOT NULL UNIQUE,
     created_at TEXT DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS users (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    name         TEXT    NOT NULL,
+    email        TEXT    NOT NULL UNIQUE,
+    password     TEXT    NOT NULL,
+    role         TEXT    NOT NULL DEFAULT 'reader',
+    created_at   TEXT    DEFAULT (datetime('now'))
   );
 `);
 
@@ -35,7 +45,7 @@ if (count.c === 0) {
   insert.run("Deep Work",                "Cal Newport",                 "want");
   insert.run("The Alchemist",            "Paulo Coelho",                "want");
   insert.run("Sapiens",                  "Yuval Noah Harari",           "reading");
-  console.log("✅ Database seeded with starter books");
+  console.log("Database seeded with starter books");
 }
 
 module.exports = db;
