@@ -165,3 +165,84 @@ footer {
   border-top: 1px solid var(--red-border);
   margin-top: 3rem;
 }
+
+
+/* ── Phase 2 additions ── */
+
+.search-input {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  font-size: 0.95rem;
+  font-family: system-ui, sans-serif;
+  border: 1.5px solid var(--red-border);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  background: var(--white);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.search-input:focus { border-color: var(--red); }
+
+.filter-bar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  padding: 0.35rem 1rem;
+  font-size: 0.8rem;
+  font-family: system-ui, sans-serif;
+  font-weight: 500;
+  border: 1.5px solid var(--red-border);
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.filter-btn:hover  { border-color: var(--red); color: var(--red); }
+.filter-btn.active { background: var(--red); border-color: var(--red); color: #fff; }
+
+.card-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--red-border);
+}
+
+.status-select {
+  font-size: 0.78rem;
+  font-family: system-ui, sans-serif;
+  border: 1px solid var(--red-border);
+  border-radius: 6px;
+  padding: 2px 6px;
+  color: var(--text);
+  background: var(--bg);
+  cursor: pointer;
+}
+
+.status-select:focus { outline: none; border-color: var(--red); }
+
+.detail-link {
+  font-size: 0.78rem;
+  color: var(--red);
+  text-decoration: none;
+  font-family: system-ui, sans-serif;
+}
+
+.detail-link:hover { text-decoration: underline; }
+
+.empty-msg {
+  color: var(--muted);
+  font-family: system-ui, sans-serif;
+  font-size: 0.9rem;
+  grid-column: 1 / -1;
+  padding: 1rem 0;
+}
