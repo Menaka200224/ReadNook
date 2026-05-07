@@ -40,7 +40,7 @@ function requireLogin(req, res, next) {
 
 // Register
 app.post("/api/auth/register", async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password,role } = req.body;
   if (!name || !email || !password) {
     return res.status(400).json({ error: "All fields are required" });
   }
@@ -51,25 +51,30 @@ app.post("/api/auth/register", async (req, res) => {
   }
 
   const hashed = await bcrypt.hash(password, 10);
+  const userRole   = role === "publisher" ? "publisher" : "reader";
   const result = db.prepare(
-    "INSERT INTO users (name, email, password) VALUES (?, ?, ?)"
-  ).run(name, email, hashed);
+    "INSERT INTO users (name, email, password,role) VALUES (?, ?, ?,?)"
+  ).run(name, email, hashed,userRole);
 
   req.session.userId   = result.lastInsertRowid;
   req.session.userName = name;
-  req.session.userRole = "reader";
+  req.session.userRole = userRole;
 
-  res.status(201).json({ message: "Account created", name, role: "reader" });
+  res.status(201).json({ message: "Account created", name, role: userRole});
 });
 
 // Login
 app.post("/api/auth/login", async (req, res) => {
   const { email, password } = req.body;
+
+  
   if (!email || !password) {
     return res.status(400).json({ error: "Email and password required" });
   }
 
   const user = db.prepare("SELECT * FROM users WHERE email = ?").get(email);
+
+  
   if (!user) {
     return res.status(401).json({ error: "Invalid email or password" });
   }

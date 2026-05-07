@@ -38,13 +38,13 @@ db.exec(`
 const count = db.prepare("SELECT COUNT(*) as c FROM books").get();
 if (count.c === 0) {
   const insert = db.prepare(
-    "INSERT INTO books (title, author, status) VALUES (?, ?, ?)"
+    "INSERT INTO books (title, author, status,user_id) VALUES (?, ?, ?, ? )"
   );
-  insert.run("The Pragmatic Programmer", "David Thomas & Andrew Hunt", "reading");
-  insert.run("Atomic Habits",            "James Clear",                 "done");
-  insert.run("Deep Work",                "Cal Newport",                 "want");
-  insert.run("The Alchemist",            "Paulo Coelho",                "want");
-  insert.run("Sapiens",                  "Yuval Noah Harari",           "reading");
+  insert.run("The Pragmatic Programmer", "David Thomas & Andrew Hunt", "reading",null);
+  insert.run("Atomic Habits",            "James Clear",                 "done",null);
+  insert.run("Deep Work",                "Cal Newport",                 "want",null);
+  insert.run("The Alchemist",            "Paulo Coelho",                "want",null);
+  insert.run("Sapiens",                  "Yuval Noah Harari",           "reading",null);
   console.log("Database seeded with starter books");
 }
 

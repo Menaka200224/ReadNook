@@ -2,31 +2,29 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Book Detail</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Readnook — Book Detail</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
   <header>
-    <h1> My Reading List</h1>
+    <a href="index.html" class="logo">read<span>nook</span></a>
     <nav>
+      <span id="user-name"></span>
       <a href="index.html">← Back to list</a>
+      <button id="logout-btn" class="logout-btn">Log out</button>
     </nav>
   </header>
 
   <main>
-    <div class="book-detail">
-      <h2>The Pragmatic Programmer</h2>
-      <p><strong>Author:</strong> David Thomas & Andrew Hunt</p>
-      <p><strong>Status:</strong> Reading</p>
-      <p><strong>My notes:</strong> Great advice on writing clean, maintainable code.</p>
+    <div id="book-detail-box" class="book-detail">
+      <p class="loading-msg">Loading book...</p>
     </div>
   </main>
 
-</body>
+  <footer>© 2025 Readnook — cozy reading, for everyone</footer>
 
-<!-- Footer-->
-<footer>
-  © 2025 Readnook — cozy reading, for everyone
-</footer>
+  <script src="book.js"></script>
+</body>
 </html>

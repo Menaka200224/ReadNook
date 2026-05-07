@@ -32,27 +32,70 @@
   </main>
 
   <script>
-    document.getElementById("login-btn").addEventListener("click", async () => {
-      const email    = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
-      const errEl    = document.getElementById("error-msg");
+    document.addEventListener("DOMContentLoaded", () => {
 
-      const res  = await fetch("/api/auth/login", {
-        method:      "POST",
-        headers:     { "Content-Type": "application/json" },
-        credentials: "include",
-        body:        JSON.stringify({ email, password }),
-      });
-      const data = await res.json();
+      document.getElementById("login-btn").addEventListener("click", async () => {
+        const email    = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
+        const errEl    = document.getElementById("error-msg");
+        const btn      = document.getElementById("login-btn");
 
-      if (!res.ok) {
-        errEl.textContent = data.error;
-        errEl.classList.remove("hidden");
-        return;
-      }
+        // Clear previous errors
+        errEl.classList.add("hidden");
 
-      window.location.href = "index.html";
-    });
+        // Validation
+        if (!email) {
+          errEl.textContent = "Please enter your email address";
+          errEl.classList.remove("hidden"); return;
+        }
+        if (!/\S+@\S+\.\S+/.test(email)) {
+          errEl.textContent = "Please enter a valid email address";
+          errEl.classList.remove("hidden"); return;
+        }
+        if (!password) {
+          errEl.textContent = "Please enter your password";
+          errEl.classList.remove("hidden"); return;
+        }
+
+        // Loading state
+        btn.textContent = "Logging in...";
+        btn.disabled    = true;
+
+        try {
+          const res  = await fetch("/api/auth/login", {
+            method:      "POST",
+            headers:     { "Content-Type": "application/json" },
+            credentials: "include",
+            body:        JSON.stringify({ email, password }),
+          });
+          const data = await res.json();
+
+          console.log("Server response:", data);
+
+          if (!res.ok) {
+            errEl.textContent = data.error || "Login failed";
+            errEl.classList.remove("hidden");
+            btn.textContent = "Log in";
+            btn.disabled    = false;
+            return;
+          }
+
+          // Redirect based on role
+          window.location.href = data.role === "publisher"
+            ? "publisher.html"
+            : "index.html";
+
+        } catch (err) {
+          console.error("Login error:", err);
+          errEl.textContent = "Could not connect to server.";
+          errEl.classList.remove("hidden");
+          btn.textContent = "Log in";
+          btn.disabled    = false;
+        }
+
+      }); // end click handler
+
+    }); // end DOMContentLoaded
   </script>
 
 </body>

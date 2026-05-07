@@ -23,6 +23,12 @@
         <input id="name"     type="text"     placeholder="Your name"     class="search-input" />
         <input id="email"    type="email"    placeholder="Email address" class="search-input" />
         <input id="password" type="password" placeholder="Password"      class="search-input" />
+
+        <select id="role" class="search-input" style="font-family:system-ui,sans-serif">
+             <option value="reader">I am a Reader</option>
+             <option value="publisher">I am a Publisher</option>
+        </select>
+   
         <button id="register-btn" class="submit-btn" style="width:100%">Create account</button>
       </div>
 
@@ -33,28 +39,54 @@
   </main>
 
   <script>
-    document.getElementById("register-btn").addEventListener("click", async () => {
-      const name     = document.getElementById("name").value.trim();
-      const email    = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
-      const errEl    = document.getElementById("error-msg");
+    document.addEventListener("DOMContentLoaded", () => {
+     document.getElementById("register-btn").addEventListener("click", async () => {
+  const name     = document.getElementById("name").value.trim();
+  const email    = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+  const role     = document.getElementById("role").value;
+  const errEl    = document.getElementById("error-msg");
 
-      const res  = await fetch("/api/auth/register", {
-        method:      "POST",
-        headers:     { "Content-Type": "application/json" },
-        credentials: "include",
-        body:        JSON.stringify({ name, email, password }),
-      });
-      const data = await res.json();
+  errEl.classList.add("hidden");
 
-      if (!res.ok) {
-        errEl.textContent = data.error;
-        errEl.classList.remove("hidden");
-        return;
-      }
+  if (!name) {
+    errEl.textContent = "Please enter your name";
+    errEl.classList.remove("hidden"); return;
+  }
+  if (!email || !/\S+@\S+\.\S+/.test(email)) {
+    errEl.textContent = "Please enter a valid email address";
+    errEl.classList.remove("hidden"); return;
+  }
+  if (password.length < 6) {
+    errEl.textContent = "Password must be at least 6 characters";
+    errEl.classList.remove("hidden"); return;
+  }
 
-      window.location.href = "index.html";
-    });
+  const btn = document.getElementById("register-btn");
+  btn.textContent = "Creating account...";
+  btn.disabled    = true;
+
+  const res  = await fetch("/api/auth/register", {
+    method:      "POST",
+    headers:     { "Content-Type": "application/json" },
+    credentials: "include",
+    body:        JSON.stringify({ name, email, password, role }),
+  });
+  const data = await res.json();
+
+  if (!res.ok) {
+    errEl.textContent = data.error;
+    errEl.classList.remove("hidden");
+    btn.textContent = "Create account";
+    btn.disabled    = false;
+    return;
+  }
+
+  window.location.href = data.role === "publisher" ? "publisher.html" : "index.html";
+});
+
+ });
+ 
   </script>
 
 </body>

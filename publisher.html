@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Readnook — Publisher Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header>
+    <a href="publisher.html" class="logo">read<span>nook</span></a>
+    <nav>
+      <span id="user-name"></span>
+      <button id="logout-btn" class="logout-btn">Log out</button>
+    </nav>
+  </header>
+
+  <main>
+    <div class="publisher-hero">
+      <h2>Publisher Dashboard</h2>
+      <p class="auth-sub">Manage your e-books and track reader engagement</p>
+    </div>
+
+    <!-- Publish a new book -->
+    <div class="publisher-card">
+      <h3>Publish a new e-book</h3>
+      <div id="pub-error" class="error-msg hidden"></div>
+      <div class="auth-form">
+        <input id="pub-title"  type="text" placeholder="Book title"   class="search-input" />
+        <input id="pub-author" type="text" placeholder="Author name"  class="search-input" />
+        <textarea id="pub-desc" class="notes-input" placeholder="Book description (optional)"></textarea>
+        <button id="publish-btn" class="submit-btn">Publish book</button>
+      </div>
+    </div>
+
+    <!-- Published books list -->
+    <div class="publisher-card" style="margin-top:1.5rem">
+      <h3>Your published books</h3>
+      <div id="pub-grid" class="book-grid" style="margin-top:1rem"></div>
+    </div>
+  </main>
+
+  <footer>© 2025 Readnook — cozy reading, for everyone</footer>
+
+  <script src="publisher.js"></script>
+</body>
+</html>
