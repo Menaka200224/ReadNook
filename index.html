@@ -14,8 +14,8 @@
   <a href="index.html" class="logo">read<span>nook</span></a>
   <nav>
     <span id="user-name" style="font-size:0.85rem; color:#666; font-family:system-ui,sans-serif"></span>
-    <a href="#">Discover</a>
-    <a href="#">Publishers</a>
+    <a href="index.html">Discover</a>
+    <a href="publisher.html">Publishers</a>
     <button id="logout-btn" class="logout-btn">Log out</button>
   </nav>
 </header>
@@ -29,31 +29,34 @@
       class="search-input"
     />
 
-    <!-- Filter buttons -->
-    <div class="filter-bar">
-      <button class="filter-btn active" data-filter="all">All</button>
-      <button class="filter-btn" data-filter="reading">Reading</button>
-      <button class="filter-btn" data-filter="done">Done</button>
-      <button class="filter-btn" data-filter="want">Want to read</button>
-    </div>
+  <div class="top-bar" style="margin-bottom:1rem;">
+    <p class="section-label">Library discovery</p>
+    <a href="publisher.html" class="detail-link">Publisher portal</a>
+  </div>
 
-    
+  <div id="library-grid" class="book-grid"></div>
 
-    <!-- Add book form -->
-    <div class="top-bar">
-  <p class="section-label">Your reading list</p>
-  <button id="add-book-btn" class="add-btn">+ Add book</button>
-</div>
+  <div class="top-bar">
+    <p class="section-label">Your reading list</p>
+    <button id="add-book-btn" class="add-btn">+ Add book</button>
+  </div>
 
-<div id="add-form" class="add-form hidden">
-  <input id="new-title"  type="text" placeholder="Book title"   class="search-input" />
-  <input id="new-author" type="text" placeholder="Author name"  class="search-input" />
-  <button type="submit" form="book-form" class="submit-btn">Add to list</button>
-  <form id="book-form"></form>
-</div>
+  <div id="add-form" class="add-form hidden">
+    <input id="new-title" type="text" placeholder="Book title" class="search-input" />
+    <input id="new-author" type="text" placeholder="Author name" class="search-input" />
+    <textarea id="new-desc" class="notes-input" placeholder="Book description (optional)"></textarea>
+    <button type="submit" form="book-form" class="submit-btn">Add to list</button>
+    <form id="book-form"></form>
+  </div>
 
-    <!-- Cards render here -->
-    <div class="book-grid" id="book-grid"></div>
+  <div class="filter-bar">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="reading">Reading</button>
+    <button class="filter-btn" data-filter="done">Done</button>
+    <button class="filter-btn" data-filter="want">Want to read</button>
+  </div>
+
+  <div id="reading-grid" class="book-grid"></div>
   </main>
 
   <footer>© 2025 Readnook — cozy reading, for everyone</footer>
