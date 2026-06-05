@@ -5,12 +5,12 @@ async function checkAuth() {
 
   if (!data.loggedIn) {
     window.location.href = "login.html";
-    return;
+    return null;
   }
 
-  // Show user's name in header
   const userEl = document.getElementById("user-name");
   if (userEl) userEl.textContent = data.name;
+  return data;
 }
 
 // ── Logout ──
@@ -21,29 +21,67 @@ async function logout() {
 
 document.getElementById("logout-btn")?.addEventListener("click", logout);
 
-// Run auth check first
-checkAuth().then(() => applyFilters());
 const API = "http://localhost:3000/api";
-
 const statusLabel = {
   reading: "Reading",
   done:    "Done",
   want:    "Want to read",
 };
 
-// ── Fetch all books from the backend ──
-async function loadBooks() {
-  const res   = await fetch(`${API}/books`, { credentials: "include" });
+let myBooks = [];
+let activeFilter = "all";
+
+async function loadLibrary() {
+  const query = document.getElementById("search").value.trim();
+  const url = new URL(`${API}/library`, window.location);
+  if (query) url.searchParams.set("q", query);
+
+  const res = await fetch(url, { credentials: "include" });
   const books = await res.json();
-  return books;
+  renderLibrary(books);
 }
 
-// ── Render cards ──
-function renderBooks(books) {
-  const grid = document.getElementById("book-grid");
+async function loadBooks() {
+  const res = await fetch(`${API}/books`, { credentials: "include" });
+  myBooks = await res.json();
+  applyFilters();
+}
+
+function renderLibrary(books) {
+  const grid = document.getElementById("library-grid");
 
   if (books.length === 0) {
-    grid.innerHTML = `<p class="empty-msg">No books found.</p>`;
+    grid.innerHTML = `<p class="empty-msg">No library books found.</p>`;
+    return;
+  }
+
+  grid.innerHTML = books.map(book => `
+    <div class="book-card" data-id="${book.id}">
+      <h2>${book.title}</h2>
+      <p class="author">${book.author}${book.publisher_name ? ` • ${book.publisher_name}` : ""}</p>
+      <p class="book-meta">${book.description ? book.description : "A cozy library title waiting to be discovered."}</p>
+      <div class="card-actions">
+        <a href="book.html?bookId=${book.id}" class="detail-link">Details →</a>
+        <button class="add-list-btn" data-id="${book.id}" ${book.saved_entry_id ? "disabled" : ""}>
+          ${book.saved_entry_id ? "Saved" : "Add to list"}
+        </button>
+      </div>
+    </div>
+  `).join("");
+
+  document.querySelectorAll(".add-list-btn").forEach(button => {
+    button.addEventListener("click", async (event) => {
+      const id = parseInt(event.target.dataset.id, 10);
+      await addBookToList(id);
+    });
+  });
+}
+
+function renderBooks(books) {
+  const grid = document.getElementById("reading-grid");
+
+  if (books.length === 0) {
+    grid.innerHTML = `<p class="empty-msg">No books found in your reading list.</p>`;
     return;
   }
 
@@ -65,31 +103,34 @@ function renderBooks(books) {
 
   document.querySelectorAll(".status-select").forEach(select => {
     select.addEventListener("change", async (e) => {
-      await updateStatus(parseInt(e.target.dataset.id), e.target.value);
+      await updateStatus(parseInt(e.target.dataset.id, 10), e.target.value);
     });
   });
 }
 
-// ── Update status via API ──
 async function updateStatus(id, newStatus) {
   await fetch(`${API}/books/${id}`, {
-    method:  "PATCH",
+    method: "PATCH",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
-    body:    JSON.stringify({ status: newStatus }),
+    body: JSON.stringify({ status: newStatus }),
   });
-  applyFilters();
+  await refreshLists();
 }
 
-// ── Filter + search ──
-let allBooks    = [];
-let activeFilter = "all";
+async function addBookToList(bookId) {
+  await fetch(`${API}/books`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ bookId, status: "want" }),
+  });
+  await refreshLists();
+}
 
 async function applyFilters() {
-  allBooks = await loadBooks();
   const query = document.getElementById("search").value.toLowerCase();
-
-  const filtered = allBooks.filter(book => {
+  const filtered = myBooks.filter(book => {
     const matchesSearch = book.title.toLowerCase().includes(query) ||
                           book.author.toLowerCase().includes(query);
     const matchesFilter = activeFilter === "all" || book.status === activeFilter;
@@ -99,28 +140,33 @@ async function applyFilters() {
   renderBooks(filtered);
 }
 
-// ── Add book form ──
+async function refreshLists() {
+  await Promise.all([loadLibrary(), loadBooks()]);
+}
+
 async function addBook(e) {
   e.preventDefault();
-  const title  = document.getElementById("new-title").value.trim();
+  const title = document.getElementById("new-title").value.trim();
   const author = document.getElementById("new-author").value.trim();
+  const description = document.getElementById("new-desc").value.trim();
   if (!title || !author) return;
 
   await fetch(`${API}/books`, {
     credentials: "include",
-    method:  "POST",
+    method: "POST",
     headers: { "Content-Type": "application/json" },
-    body:    JSON.stringify({ title, author, status: "want" }),
+    body: JSON.stringify({ title, author, description, status: "want" }),
   });
 
-  document.getElementById("new-title").value  = "";
+  document.getElementById("new-title").value = "";
   document.getElementById("new-author").value = "";
+  document.getElementById("new-desc").value = "";
   document.getElementById("add-form").classList.add("hidden");
-  applyFilters();
+  await refreshLists();
 }
 
 // ── Event listeners ──
-document.getElementById("search").addEventListener("input", applyFilters);
+document.getElementById("search").addEventListener("input", refreshLists);
 
 document.querySelectorAll(".filter-btn").forEach(btn => {
   btn.addEventListener("click", () => {
@@ -136,4 +182,8 @@ document.getElementById("add-book-btn").addEventListener("click", () => {
 });
 
 document.getElementById("book-form").addEventListener("submit", addBook);
+
+checkAuth().then(user => {
+  if (user) refreshLists();
+});
 
