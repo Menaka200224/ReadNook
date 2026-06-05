@@ -22,11 +22,11 @@ async function checkAuth() {
 
 // ── Load publisher's books ──
 async function loadPublishedBooks() {
-  const res   = await fetch(`${API}/books`, { credentials: "include" });
+  const res   = await fetch(`${API}/publisher/books`, { credentials: "include" });
   const books = await res.json();
   const grid  = document.getElementById("pub-grid");
 
-  if (books.length === 0) {
+  if (!books || books.length === 0) {
     grid.innerHTML = `<p class="empty-msg">You haven't published any books yet.</p>`;
     return;
   }
@@ -35,6 +35,7 @@ async function loadPublishedBooks() {
     <div class="book-card">
       <h2>${book.title}</h2>
       <p class="author">${book.author}</p>
+      <p class="book-meta">${book.description ? book.description : "No description added yet."}</p>
       <span class="status reading">Published</span>
       <div class="card-actions">
         <span style="font-size:0.78rem;color:#888;font-family:system-ui,sans-serif">
@@ -50,9 +51,10 @@ async function loadPublishedBooks() {
 
   document.querySelectorAll(".delete-book-btn").forEach(btn => {
     btn.addEventListener("click", async () => {
-      if (!confirm("Remove this book?")) return;
-      await fetch(`${API}/books/${btn.dataset.id}`, {
-        method: "DELETE", credentials: "include"
+      if (!confirm("Remove this book from the library?")) return;
+      await fetch(`${API}/library/${btn.dataset.id}`, {
+        method: "DELETE",
+        credentials: "include"
       });
       loadPublishedBooks();
     });
@@ -62,10 +64,11 @@ async function loadPublishedBooks() {
 // ── Publish new book ──
 // ── Publish new book ──
 document.getElementById("publish-btn").addEventListener("click", async () => {
-  const title  = document.getElementById("pub-title").value.trim();
-  const author = document.getElementById("pub-author").value.trim();
-  const errEl  = document.getElementById("pub-error");
-  const btn    = document.getElementById("publish-btn");
+  const title       = document.getElementById("pub-title").value.trim();
+  const author      = document.getElementById("pub-author").value.trim();
+  const description = document.getElementById("pub-desc").value.trim();
+  const errEl       = document.getElementById("pub-error");
+  const btn         = document.getElementById("publish-btn");
 
   // Clear previous errors
   errEl.classList.add("hidden");
@@ -81,19 +84,19 @@ document.getElementById("publish-btn").addEventListener("click", async () => {
   btn.disabled    = true;
 
   try {
-    const res  = await fetch(`${API}/books`, {
+    const res  = await fetch(`${API}/library`, {
       method:      "POST",
       headers:     { "Content-Type": "application/json" },
       credentials: "include",
-      body:        JSON.stringify({ title, author, status: "reading" }),
+      body:        JSON.stringify({ title, author, description }),
     });
 
     const data = await res.json();
-    console.log("Publish response:", res.status, data); // debug line
 
     if (res.ok) {
       document.getElementById("pub-title").value  = "";
       document.getElementById("pub-author").value = "";
+      document.getElementById("pub-desc").value   = "";
       errEl.classList.add("hidden");
       loadPublishedBooks();
     } else {
